@@ -1,0 +1,10 @@
+//combinações de teclas, todas devem ser minúsculas
+#define MOVE 'q'
+#define MOVD 'e'
+#define RTOA 'w'
+#define DROP 's'
+#define RSET 'r'
+#define SNXT 'z'
+#define STXT 'c'
+#define EXIT 'k'
+#define TPLS 't'
