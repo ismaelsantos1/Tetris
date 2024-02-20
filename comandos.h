@@ -1,8 +1,7 @@
-//key bindings, all should be lowercase letters
-#define MOVE 'q'
-#define MOVD 'e'
+#define MOVE 'a'
+#define MOVD 'd'
 #define ROTA 'w'
-#define DROP 'a'
+#define DROP 's'
 #define RSET 'l'
 #define SNXT 'z'
 #define STXT 'c'

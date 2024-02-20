@@ -1,54 +1,58 @@
-/*
-É possível que há muitos números "mágicos" nesse código, porém também é possível notar que esses números são limpos constantemente, afim de evitar um estouro de memória.
-*/
-
-#include <ctype.h>
+#include <ctype.h> //estudar lib
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/time.h>
-#include <time.h>
-#include <unistd.h>
-#include <curses.h>
+#include <sys/time.h> //estudar lib
+#include <time.h> //estudar lib
+#include <unistd.h> //estudar lib
+#include <curses.h> //estudar a lib
 
 #include "comandos.h"
 #include "configs.h"
+
 
 //NÃO MUDA
 #define WIDTH 25
 #define HEIGHT 24
 #define TOPLSITMAXLINELENGTH 34
 
-//init variables
+//init variáveis
 char peca;
 char *name;
-//set flags to default values
+//set flags de valores padrão
 int level, score, showtext = 1, next, shownext = 1, end, clrlines = 0;
 int startlevel, dropped = 0;
 int fixedpoint[2] = {0};
-//screen is divided into three sections - left, right and center
+//tela é dividida em 3 seções - left, right and center
 char left[HEIGHT][WIDTH] = {0};
 char center[HEIGHT][WIDTH] = {0};
 char right[HEIGHT][WIDTH] = {0};
-//all possible tetrominos
+
+//Todos os tetrominos
 char TetrominoI[2][WIDTH] = {"<! . . . . . . . . . .!>",
-                             "<! . . .[][][][] . . .!>"};
+                            "<! . . .[][][][] . . .!>"};
+
 char TetrominoJ[2][WIDTH] = {"<! . . .[] . . . . . .!>",
-                             "<! . . .[][][] . . . .!>"};
+                            "<! . . .[][][] . . . .!>"};
+
 char TetrominoL[2][WIDTH] = {"<! . . . . .[] . . . .!>",
-                             "<! . . .[][][] . . . .!>"};
+                            "<! . . .[][][] . . . .!>"};
+
 char TetrominoO[2][WIDTH] = {"<! . . . .[][] . . . .!>",
-                             "<! . . . .[][] . . . .!>"};
+                            "<! . . . .[][] . . . .!>"};
+
 char TetrominoS[2][WIDTH] = {"<! . . . .[][] . . . .!>",
-                             "<! . . .[][] . . . . .!>"};
+                            "<! . . .[][] . . . . .!>"};
+
 char TetrominoT[2][WIDTH] = {"<! . . . .[] . . . . .!>",
-                             "<! . . .[][][] . . . .!>"};
+                            "<! . . .[][][] . . . .!>"};
+
 char TetrominoZ[2][WIDTH] = {"<! . . .[][] . . . . .!>",
-                             "<! . . . .[][] . . . .!>"};
+                            "<! . . . .[][] . . . .!>"};
 struct timeval t1, t2;
 
 void show_next(){
-  //function shows next tetromino
+  //function mostra o próximo tetromino
   switch(next){
     case 0:
       memcpy(left[11]+WIDTH-10, TetrominoI[1]+8, 8);
@@ -81,7 +85,7 @@ void show_next(){
 }
 
 void updatescrn(){
-  //self explanatory, refreshes screen
+  //vai atualizar a tela
   clear();
   printw("\n");
   for(int i=2; i<HEIGHT; ++i){
@@ -99,7 +103,7 @@ void updatescrn(){
 }
 
 void updatescore(){
-  //updates score
+  //atualiza a pontuação
   char *tmp=malloc(sizeof *tmp * 15);
   sprintf(tmp, "%-14d", score);
   memcpy(left[7]+9, tmp, 14);
@@ -107,13 +111,12 @@ void updatescore(){
 }
 
 void toplist(){
-  //show toplist
+  //mostra toplist
   char *buffer=malloc(sizeof *buffer * TOPLSITMAXLINELENGTH);
   FILE *f;
   clear();
   if(!(f=fopen("toplist", "r")))
-    printw("\n\n\n    Toplist doesn't exist! Your score has to be higher than 0"
-           " to be added ;)\n");
+    printw("\n\n\n    NÃO HÁ UMA LISTA COM OS MELHORES JOGADORES. SUA PONTUAÇÃO PRECISA SER MAIOR DO QUE 0" " PARA SER INCLUÍDO\n");
   else{
     printw("\n");
     while(fgets(buffer, TOPLSITMAXLINELENGTH, f) != NULL)
@@ -126,14 +129,13 @@ void toplist(){
 }
 
 void addscore(){
-  //add score to toplist if needed
+  //add pontos no arquivo de tops se necessário
   if(!score) return;
   FILE *f;
   if(!(f=fopen("toplist", "r"))){
     if(!(f=fopen("toplist", "w")))
       exit(1);
-    fprintf(f, "NAME          LVL SCORE        \n%-13s %2d  %-14d\n",
-            name, level, score);
+    fprintf(f, "NOME          LVL PONTOS        \n%-13s %2d  %-14d\n", name, level, score);
     fclose(f);
     return;
   }
@@ -145,7 +147,7 @@ void addscore(){
     exit(1);
   int cntr = 21;
   while(fgets(buffer, TOPLSITMAXLINELENGTH, f) != NULL && --cntr){
-    num = strtol(buffer+18, NULL, 10);
+    num = strtol(buffer+18, NULL, 10); //ler sobre strtol
     if(!added && score>num && num!=0){
       fprintf(tmp, "%-13s %2d  %-14d\n", name, level, score);
       score=0;
@@ -161,7 +163,7 @@ void addscore(){
 }
 
 int gameover(){
-  //prints game over screen
+  //prints game over na tela
   nodelay(stdscr, FALSE);
   if(!end) addscore();
   end = 1;
@@ -202,7 +204,7 @@ int gameover(){
 }
 
 void checkclr(){
-  //check if a line should be cleared
+  //confere se a linha deverá ser limpa
   int cleared = 0;
   if(fixedpoint[0]>2){
     for(int i=-2; i<2; ++i){
@@ -224,7 +226,7 @@ void checkclr(){
 }
 
 void initpiece(){
-  //initializes a new piece
+  //inicializar uma nova peça
   checkclr();
   int current;
   current = next;
@@ -276,7 +278,7 @@ void initpiece(){
 }
 
 void rotate(){
-  //rotate current peca (clockwise obviously)
+  //girar a peça atual (no sentido horário)
   switch(peca){
     case 'I':
       if(center[fixedpoint[0]+1][fixedpoint[1]]=='['
@@ -522,7 +524,7 @@ void rotate(){
 }
 
 void moveleft(){
-  //move current peca to the left
+  //move a atual peça para a esquerda
   switch(peca){
     case 'I':
       if(center[fixedpoint[0]][fixedpoint[1]+-6]=='['
@@ -780,7 +782,7 @@ void moveleft(){
 }
 
 void moveright(){
-  //move current piece to the right
+  //move a atual peça para a direita
   switch(peca){
     case 'I':
       if(center[fixedpoint[0]][fixedpoint[1]+4]=='['
@@ -1037,7 +1039,7 @@ void moveright(){
   }
 }
 int movedown(){
-  //move current piece down
+  //move atual peça para baixo
   switch(peca){
     case 'I':
       if(center[fixedpoint[0]+1][fixedpoint[1]-4]=='='){
@@ -1365,15 +1367,15 @@ int movedown(){
 }
 
 void init(){
-  //initializes screen
+  //inicializa a tela do jogo
   memcpy(left[0], "                        \0"
                   "                        \0"
                   "                        \0"
                   "  PLAYER:               \0"
                   "                        \0"
-                  "  LEVEL:                \0"
+                  "  NÍVEL:                \0"
                   "                        \0"
-                  "  SCORE:                \0"
+                  "  PONTOS:               \0"
                   "                        \0"
                   "                        \0"
                   "                        \0"
@@ -1414,34 +1416,34 @@ void init(){
                     "<! . . . . . . . . . .!>\0"
                     "<!====================!>\0"
                     "  \\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\0", (HEIGHT)*(WIDTH));
-  memcpy(right[0], "                        \0"
-                   "                        \0"
-                   "                        \0"
-                   "    : LEFT     :RIGHT   \0"
-                   "         :ROTATE        \0"
-                   "    : DROP     :RESET   \0"
-                   "    : SHOW/HIDE NEXT    \0"
-                   "    : HIDE THIS TEXT    \0"
-                   "    : EXIT              \0"
-                   "                        \0"
-                   "                        \0"
-                   "                        \0"
-                   "                        \0"
-                   "                        \0"
-                   "                        \0"
-                   "                        \0"
-                   "                        \0"
-                   "                        \0"
-                   "                        \0"
-                   "                        \0"
-                   "                        \0"
-                   "                        \0"
-                   "                        \0"
-                   "                        \0", (HEIGHT)*(WIDTH));
+  memcpy(right[0], "                              \0"
+                   "                              \0"
+                   "                              \0"
+                   "    : ESQUERDA     :DIREITA   \0"
+                   "         :GIRAR               \0"
+                   "    : DROP     :RESET         \0"
+                   "    : MOSTRAR/ESCND NEXT      \0"
+                   "    : ESCND ESSE TEXTO        \0"
+                   "    : SAIR                    \0"
+                   "                              \0"
+                   "                              \0"
+                   "                              \0"
+                   "                              \0"
+                   "                              \0"
+                   "                              \0"
+                   "                              \0"
+                   "                              \0"
+                   "                              \0"
+                   "                              \0"
+                   "                              \0"
+                   "                              \0"
+                   "                              \0"
+                   "                              \0"
+                   "                              \0", (HEIGHT)*(WIDTH));
 }
 
 void updatelevel(){
-  //updates level
+  //atualiza a o nível
   char *tmp=malloc(sizeof *tmp * 15);
   sprintf(tmp, "%-14d", level);
   memcpy(left[5]+9, tmp, 14);
@@ -1461,7 +1463,7 @@ void setkeybind(){
 }
 
 int game(){
-  //simulates a game of tetris
+  //simula o jogo de tetris
   nodelay(stdscr, FALSE);
   init();
   setkeybind();
@@ -1532,7 +1534,7 @@ int game(){
       }
     }
     gettimeofday(&t2, NULL);
-    if((((t2.tv_sec-t1.tv_sec) * 1000) + ((t2.tv_usec-t1.tv_usec)/1000))
+    if((((t2.tv_sec-t1.tv_sec) * 1000) + ((t2.tv_usec-t1.tv_usec)/1000)) 
        > DROPINTERVAL){
       if(movedown()) continue;
       updatescrn();
@@ -1543,7 +1545,7 @@ int game(){
 }
 
 int main(void){
-  //main function
+  //função principal
   name=malloc(sizeof *name * 14);
   srand(time(NULL));
   initscr();

@@ -15,5 +15,5 @@ Calcula o intervalo de queda do do próximo bloco, em segundos, tendo como base 
 #define DROPINTERVAL (DELAY/1000) * ((300 - level*13)/5)
 #define DELAY 7777 //define o atraso entre dois comandos, em milissegundos, para não sobrecarregar o processador
 
-#define MAXLEVEL 30 //nível máximo que o jogador pode alcançar
+#define MAXLEVEL 20 //nível máximo que o jogador pode alcançar
 #define LINESPLVLUP 10 //número de linhas que o jogador pode alcançar
